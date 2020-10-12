@@ -23,7 +23,7 @@ namespace AssemblyParserLib
                 {
                     if (type.Namespace == namespaceNode.Name)
                     {
-                        namespaceNode.DataTypes.Add(new DataType(type.Name));
+                        namespaceNode.DataTypes.Add(new DataType(GetTypeName(type)));
                         namespaceNode.DataTypes[namespaceNode.DataTypes.Count - 1].Fields = GetFields(type);
                         namespaceNode.DataTypes[namespaceNode.DataTypes.Count - 1].Properties = GetProperties(type);
                         namespaceNode.DataTypes[namespaceNode.DataTypes.Count - 1].Methods = GetMethods(type);
@@ -34,13 +34,30 @@ namespace AssemblyParserLib
             return asmTree;
         }
 
+        private string GetTypeName(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                var parameters = type.GetGenericArguments().Select(a => a.Name);
+                var genericTypeName = type.GetGenericTypeDefinition().Name;
+
+                return String.Format("{0}<{1}>", genericTypeName.Contains("`") ? 
+                                     genericTypeName.Substring(0, genericTypeName.IndexOf("`")) : genericTypeName, 
+                                     String.Join(", ", parameters));
+            }
+            else
+            {
+                return type.Name;
+            }
+        }
+
         private List<Field> GetFields(Type type)
         {
             var fields = new List<Field>();
             var fieldsInfo = type.GetFields(BindingFlags.Public | BindingFlags.Instance 
                                             | BindingFlags.Static | BindingFlags.NonPublic);
 
-            fieldsInfo.ToList().ForEach(f => fields.Add(new Field(f.Name, f.FieldType.Name)));
+            fieldsInfo.ToList().ForEach(f => fields.Add(new Field(f.Name, GetTypeName(f.FieldType))));
 
             return fields;
         }
@@ -51,7 +68,7 @@ namespace AssemblyParserLib
             var propertiesInfo = type.GetProperties(BindingFlags.Public | BindingFlags.Instance
                                                     | BindingFlags.Static | BindingFlags.NonPublic);
 
-            propertiesInfo.ToList().ForEach(p => properties.Add(new Property(p.Name, p.PropertyType.Name)));
+            propertiesInfo.ToList().ForEach(p => properties.Add(new Property(p.Name, GetTypeName(p.PropertyType))));
 
             return properties;
         }
@@ -70,10 +87,10 @@ namespace AssemblyParserLib
         private string GetSignature(MethodInfo method)
         {
             string[] parameters = method.GetParameters()
-                                        .Select(p => String.Format("{0} {1}", p.ParameterType.Name, p.Name))
+                                        .Select(p => String.Format("{0} {1}", GetTypeName(p.ParameterType), p.Name))
                                         .ToArray();
 
-            return String.Format("{0} {1}({2})", method.ReturnType.Name, method.Name, String.Join(", ", parameters));
+            return String.Format("{0} {1}({2})", GetTypeName(method.ReturnType), method.Name, String.Join(", ", parameters));
         }
 
         private List<String> GetNamespaces(Type[] types)
