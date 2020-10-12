@@ -79,7 +79,7 @@ namespace AssemblyParserLib
             var methodsInfo = type.GetMethods(BindingFlags.Public | BindingFlags.Instance
                                               | BindingFlags.Static | BindingFlags.NonPublic);
 
-            methodsInfo.ToList().ForEach(m => methods.Add(new Method(GetSignature(m))));
+            methodsInfo.ToList().ForEach(m => methods.Add(new Method(m.Name, GetSignature(m))));
 
             return methods;
         }

@@ -7,8 +7,9 @@ namespace AssemblyParserLib.TreeParts
     public class Method
     {
         public string Signature { get; set; }
+        public string Name { get; set; }
 
-        public Method(string signature)
+        public Method(string name, string signature)
         {
             Signature = signature;
         }
