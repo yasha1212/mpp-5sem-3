@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 
 namespace AssemblyParserLib
@@ -26,6 +27,16 @@ namespace AssemblyParserLib
                         asmTree.Namespaces.Last().DataTypes.Last().Fields = GetFields(t);
                         asmTree.Namespaces.Last().DataTypes.Last().Properties = GetProperties(t);
                         asmTree.Namespaces.Last().DataTypes.Last().Methods = GetMethods(t);
+
+                        asm.GetTypes().Where(type => type.IsSealed && !type.IsGenericType && !type.IsNested).ToList()
+                            .Select(type => type.GetMethods(FLAGS)).ToList().ForEach(mm => 
+                            {
+                                mm.Where(m => m.IsDefined(typeof(ExtensionAttribute), false))
+                                    .Where(m => m.GetParameters()[0].ParameterType == t).ToList().ForEach(m => 
+                                    {
+                                        asmTree.Namespaces.Last().DataTypes.Last().Methods.Add(new Method(m.Name, GetSignature(m) + " - Extension"));
+                                    });
+                            });
                     });
                 });
 
@@ -40,8 +51,8 @@ namespace AssemblyParserLib
                 var genericTypeName = type.GetGenericTypeDefinition().Name;
 
                 return String.Format("{0}<{1}>", genericTypeName.Contains("`") ? 
-                                     genericTypeName.Substring(0, genericTypeName.IndexOf("`")) : genericTypeName, 
-                                     String.Join(", ", parameters));
+                    genericTypeName.Substring(0, genericTypeName.IndexOf("`")) : genericTypeName, 
+                    String.Join(", ", parameters));
             }
             else
             {
@@ -74,16 +85,15 @@ namespace AssemblyParserLib
             var methods = new List<Method>();
             var methodsInfo = type.GetMethods(FLAGS);
 
-            methodsInfo.ToList().ForEach(m => methods.Add(new Method(m.Name, GetSignature(m))));
+            methodsInfo.Where(m => !m.IsDefined(typeof(ExtensionAttribute))).ToList()
+                .ForEach(m => methods.Add(new Method(m.Name, GetSignature(m))));
 
             return methods;
         }
 
         private string GetSignature(MethodInfo method)
         {
-            string[] parameters = method.GetParameters()
-                                        .Select(p => GetTypeName(p.ParameterType))
-                                        .ToArray();
+            string[] parameters = method.GetParameters().Select(p => GetTypeName(p.ParameterType)).ToArray();
 
             string methodName = method.Name;
 
