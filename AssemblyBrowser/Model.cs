@@ -10,36 +10,10 @@ using System.Threading.Tasks;
 
 namespace AssemblyBrowser
 {
-    public class Model : INotifyPropertyChanged
+    public class Model
     {
-        private string fileName;
-        private ObservableCollection<AssemblyTree> assemblyTree;
+        public string FileName { get; set; }
 
-        public string FileName
-        {
-            get => fileName;
-            set
-            {
-                fileName = value;
-                OnPropertyChanged("FileName");
-            }
-        }
-
-        public ObservableCollection<AssemblyTree> AssemblyTree
-        {
-            get => assemblyTree;
-            set
-            {
-                assemblyTree = value;
-                OnPropertyChanged("AssemblyTree");
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged([CallerMemberName] string property = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
-        }
+        public ObservableCollection<AssemblyTree> AssemblyTree { get; set; }
     }
 }
