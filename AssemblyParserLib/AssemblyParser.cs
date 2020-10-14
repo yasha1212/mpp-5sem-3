@@ -1,6 +1,7 @@
 ﻿using AssemblyParserLib.TreeParts;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -60,9 +61,9 @@ namespace AssemblyParserLib
             }
         }
 
-        private List<Field> GetFields(Type type)
+        private ObservableCollection<Field> GetFields(Type type)
         {
-            var fields = new List<Field>();
+            var fields = new ObservableCollection<Field>();
             var fieldsInfo = type.GetFields(FLAGS);
 
             fieldsInfo.ToList().ForEach(f => fields.Add(new Field(f.Name, GetTypeName(f.FieldType))));
@@ -70,9 +71,9 @@ namespace AssemblyParserLib
             return fields;
         }
 
-        private List<Property> GetProperties(Type type)
+        private ObservableCollection<Property> GetProperties(Type type)
         {
-            var properties = new List<Property>();
+            var properties = new ObservableCollection<Property>();
             var propertiesInfo = type.GetProperties(FLAGS);
 
             propertiesInfo.ToList().ForEach(p => properties.Add(new Property(p.Name, GetTypeName(p.PropertyType))));
@@ -80,9 +81,9 @@ namespace AssemblyParserLib
             return properties;
         }
 
-        private List<Method> GetMethods(Type type)
+        private ObservableCollection<Method> GetMethods(Type type)
         {
-            var methods = new List<Method>();
+            var methods = new ObservableCollection<Method>();
             var methodsInfo = type.GetMethods(FLAGS);
 
             methodsInfo.Where(m => !m.IsDefined(typeof(ExtensionAttribute))).ToList()

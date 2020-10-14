@@ -11,6 +11,7 @@ namespace AssemblyParserLib.TreeParts
 
         public Method(string name, string signature)
         {
+            Name = name;
             Signature = signature;
         }
     }
