@@ -1,0 +1,48 @@
+﻿<Window x:Class="AssemblyBrowser.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AssemblyBrowser"
+        xmlns:treeItems="clr-namespace:AssemblyParserLib.TreeParts;assembly=AssemblyParserLib"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="Open" Command="{Binding OpenFileCommand}"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <Label DockPanel.Dock="top" Content="{Binding FileName}"></Label>
+        <TreeView DockPanel.Dock="Top" ItemsSource="{Binding AssemblyTree}">
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type treeItems:AssemblyTree}">
+                    <TreeViewItem Header="Assembly">
+                        <TreeViewItem Header="Namespaces" ItemsSource="{Binding Path=Namespaces}"/>
+                    </TreeViewItem>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type treeItems:Namespace}">
+                    <TreeViewItem Header="{Binding Path=Name}">
+                        <TreeViewItem Header="Types" ItemsSource="{Binding Path=DataTypes}"/>
+                    </TreeViewItem>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type treeItems:DataType}">
+                    <TreeViewItem Header="{Binding Path=Name}">
+                        <TreeViewItem Header="Fields" ItemsSource="{Binding Path=Fields}"/>
+                        <TreeViewItem Header="Properties" ItemsSource="{Binding Path=Properties}"/>
+                        <TreeViewItem Header="Methods" ItemsSource="{Binding Path=Methods}"/>
+                    </TreeViewItem>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type treeItems:Field}">
+                    <TreeViewItem Header="{Binding Path=Signature}"></TreeViewItem>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type treeItems:Property}">
+                    <TreeViewItem Header="{Binding Path=Signature}"></TreeViewItem>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type treeItems:Method}">
+                    <TreeViewItem Header="{Binding Path=Signature}"></TreeViewItem>
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
+        </TreeView>
+    </DockPanel>
+</Window>
